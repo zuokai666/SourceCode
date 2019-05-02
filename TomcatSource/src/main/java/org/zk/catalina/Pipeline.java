@@ -12,7 +12,7 @@ import java.util.Set;
  * @author king
  * @date 2019-05-02 12:07:54
  */
-public interface PipeLine extends ContainerAware{
+public interface Pipeline extends ContainerAware{
 	
 	Valve getBasic();
 	/**
