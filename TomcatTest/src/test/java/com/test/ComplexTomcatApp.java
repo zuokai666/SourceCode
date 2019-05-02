@@ -36,6 +36,7 @@ public class ComplexTomcatApp {
 	
 	public static void main(String[] args) throws Exception {
 		StandardServer tomcatServer = new StandardServer();
+		tomcatServer.addLifecycleListener(new MyLifecycleListener());
 		tomcatServer.setPort(-1);
 		tomcatServer.setCatalinaBase(userDir);
 		tomcatServer.setCatalinaHome(userDir);
