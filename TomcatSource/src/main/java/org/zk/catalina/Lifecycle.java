@@ -1,5 +1,7 @@
 package org.zk.catalina;
 
+import org.zk.catalina.listener.LifecycleListener;
+
 /**
  * 组件生命周期方法的通用接口
  * 当状态改变时，生命周期事件将会被触发

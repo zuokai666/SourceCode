@@ -1,0 +1,12 @@
+2019-05-02 21:03:21
+
+Container与ContainerListener
+Lifecycle与LifecycleListener
+Property与PropertyChangeListener
+
+前者与后者存在一对多的关系，而且需要当前者发生变化时，主动通知观察者（Listener），这就是观察者模式，属于行为型模式。
+事件源进行广播通知，所有观察者都能接收到，然后自己在判断是不是自己感兴趣的事件，如果是，进行处理，否则丢弃通知
+
+有点类似于ARP协议：
+地址解析协议，即ARP（Address Resolution Protocol），是根据IP地址获取物理地址的一个TCP/IP协议。
+主机发送信息时将包含目标IP地址的ARP请求广播到网络上的所有主机，并接收返回消息，以此确定目标的物理地址。

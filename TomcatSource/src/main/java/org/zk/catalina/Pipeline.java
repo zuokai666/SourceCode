@@ -2,6 +2,8 @@ package org.zk.catalina;
 
 import java.util.Set;
 
+import org.zk.catalina.aware.ContainerAware;
+
 /**
  * 这个接口描述了阀门的集合，当调用阀门的invoke方法时，集合的阀门将串联执行，管道某处的阀门必须处理请求，
  * 生成相一致的响应，而不是试图传递请求。

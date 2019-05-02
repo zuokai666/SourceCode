@@ -1,9 +1,7 @@
 组件与他们的组件管理器之间的故事
 LifecycleListener与Lifecycle
+ContainerListener与Container
+PropertyChangeListener与Container
 Valve与PipeLine
+alias与Host
 
-
-
-
-2019年5月2日18:10:33
-有一点不容易考虑到，那就是线程同步问题，同步容器的使用，锁的使用，考虑线程间安全问题
