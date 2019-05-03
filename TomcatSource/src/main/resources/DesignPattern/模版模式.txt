@@ -1,0 +1,28 @@
+2019-05-03 14:37:21
+
+Lifecycle接口的LifecycleBase抽象基类体现了模板模式，属于行为型模式
+
+一个抽象类公开定义了执行它的方法的方式/模板。
+它的子类可以按需要重写方法实现，但调用将以抽象类中定义的方式进行。
+
+意图：定义一个操作中的算法的骨架，而将一些步骤延迟到子类中。模板方法使得子类可以不改变一个算法的结构即可重定义该算法的某些特定步骤。
+主要解决：一些方法通用，却在每一个子类都重新写了这一方法。
+
+init();//我们只是调用抽象基类的公共方法
+abstract initInternal();//子类特殊的操作由自己实现，父类调用
+
+start()
+abstract startInternal()
+
+stop()
+abstract stopInternal()
+
+destroy()
+abstract destroyInternal()
+
+还有Spring中的ApplicationContext接口的抽象基类AbstractApplicationContext.refresh()同样
+运用了模板模式，父类定义运行流程，延迟到子类自己实现自己的结构
+
+
+
+
