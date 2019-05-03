@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.zk.catalina.Lifecycle;
 import org.zk.catalina.LifecycleException;
 import org.zk.catalina.LifecycleState;
+import org.zk.catalina.SingleUse;
 import org.zk.catalina.event.LifecycleEvent;
 import org.zk.catalina.listener.LifecycleListener;
 
@@ -98,6 +99,120 @@ public abstract class LifecycleBase implements Lifecycle{
             invalidTransition(Lifecycle.BEFORE_START_EVENT);
         }
     	
+    	try {
+			setStateInternal(LifecycleState.STARTING_PREP, null, false);
+			startInternal();
+			if(state == LifecycleState.FAILED){
+				stop();
+			}else if(!state.equals(LifecycleState.STARTING)){
+				invalidTransition(Lifecycle.AFTER_START_EVENT);
+			}else {
+				setStateInternal(LifecycleState.STARTED, null, false);
+			}
+		} catch (Throwable t) {
+			ExceptionUtils.handleThrowable(t);
+			setStateInternal(LifecycleState.FAILED, null, false);
+			throw new LifecycleException(sm.getString("lifecycleBase.startFail", toString()), t);
+		}
+    }
+    
+    protected abstract void startInternal() throws LifecycleException;
+    
+    @Override
+    public final synchronized void stop() throws LifecycleException{
+    	if (LifecycleState.STOPPING_PREP.equals(state) || LifecycleState.STOPPING.equals(state) || LifecycleState.STOPPED.equals(state)) {
+            if (log.isDebugEnabled()) {
+                Exception e = new LifecycleException();
+                log.debug(sm.getString("lifecycleBase.alreadyStopped", toString()), e);
+            } else if (log.isInfoEnabled()) {
+                log.info(sm.getString("lifecycleBase.alreadyStopped", toString()));
+            }
+            return;
+        }
+    	if(state == LifecycleState.NEW){
+    		state = LifecycleState.STOPPED;
+    		return;
+    	}
+    	if(!state.equals(LifecycleState.STARTED) && !state.equals(LifecycleState.FAILED)){
+    		invalidTransition(Lifecycle.BEFORE_STOP_EVENT);
+    	}
+    	
+    	try {
+			if(state.equals(LifecycleState.FAILED)){
+				fireLifecycleEvent(BEFORE_STOP_EVENT, null);
+			}else {
+				setStateInternal(LifecycleState.STOPPING_PREP, null, false);
+			}
+			stopInternal();
+			if (!state.equals(LifecycleState.STOPPING) && !state.equals(LifecycleState.FAILED)) {
+			    invalidTransition(Lifecycle.AFTER_STOP_EVENT);
+			}
+			setStateInternal(LifecycleState.STOPPED, null, false);
+		} catch (Throwable t) {
+			ExceptionUtils.handleThrowable(t);
+			setStateInternal(LifecycleState.FAILED, null, false);
+			throw new LifecycleException(sm.getString("lifecycleBase.stopFail", toString()), t);
+		} finally {
+			if(this instanceof SingleUse){
+				setStateInternal(LifecycleState.STOPPED, null, false);
+				destroy();
+			}
+		}
+    }
+    
+    protected abstract void stopInternal() throws LifecycleException;
+    
+    @Override
+    public final synchronized void destroy() throws LifecycleException {
+    	if (LifecycleState.FAILED.equals(state)) {
+            try {
+                // Triggers clean-up
+                stop();
+            } catch (LifecycleException e) {
+                // Just log. Still want to destroy.
+                log.error(sm.getString("lifecycleBase.destroyStopFail", toString()), e);
+            }
+        }
+
+        if (LifecycleState.DESTROYING.equals(state) ||
+                LifecycleState.DESTROYED.equals(state)) {
+
+            if (log.isDebugEnabled()) {
+                Exception e = new LifecycleException();
+                log.debug(sm.getString("lifecycleBase.alreadyDestroyed", toString()), e);
+            } else if (log.isInfoEnabled() && !(this instanceof SingleUse)) {
+                // Rather than have every component that might need to call
+                // destroy() check for SingleUse, don't log an info message if
+                // multiple calls are made to destroy()
+                log.info(sm.getString("lifecycleBase.alreadyDestroyed", toString()));
+            }
+            return;
+        }
+        if (!state.equals(LifecycleState.STOPPED) &&
+                !state.equals(LifecycleState.FAILED) &&
+                !state.equals(LifecycleState.NEW) &&
+                !state.equals(LifecycleState.INITIALIZED)) {
+            invalidTransition(Lifecycle.BEFORE_DESTROY_EVENT);
+        }
+        try {
+            setStateInternal(LifecycleState.DESTROYING, null, false);
+            destroyInternal();
+            setStateInternal(LifecycleState.DESTROYED, null, false);
+        } catch (Throwable t) {
+            ExceptionUtils.handleThrowable(t);
+            setStateInternal(LifecycleState.FAILED, null, false);
+            throw new LifecycleException(sm.getString("lifecycleBase.destroyFail",toString()), t);
+        }
+    }
+    protected abstract void destroyInternal() throws LifecycleException;
+    
+    @Override
+    public LifecycleState getState() {
+    	return state;
+    }
+    @Override
+    public String getStateName() {
+    	return getState().toString();
     }
     
     /**
