@@ -154,7 +154,9 @@ public abstract class LifecycleBase implements Lifecycle{
 			throw new LifecycleException(sm.getString("lifecycleBase.stopFail", toString()), t);
 		} finally {
 			if(this instanceof SingleUse){
-				setStateInternal(LifecycleState.STOPPED, null, false);
+				if(!state.equals(LifecycleState.STOPPED)){
+					setStateInternal(LifecycleState.STOPPED, null, false);
+				}
 				destroy();
 			}
 		}
