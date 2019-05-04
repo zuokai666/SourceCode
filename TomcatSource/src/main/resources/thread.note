@@ -10,3 +10,8 @@ LifecycleBase的4个生命周期方法全部加final synchronized加锁，不允
 此处体现了内置锁的可重入性
 
 
+ContainerBase中的属性Cluster使用的是读写锁
+ContainerBase中的startInternal中启动子容器使用并发包中的Future与Callable
+
+
+

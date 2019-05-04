@@ -222,8 +222,8 @@ public abstract class LifecycleBase implements Lifecycle{
      * 调用这个方法也将会自动的触动生命周期事件
      * 自动检查状态的改变是否正确
      */
-    protected synchronized void setState(LifecycleState state, Object data)throws LifecycleException {
-        setStateInternal(state, data, true);
+    protected synchronized void setState(LifecycleState state)throws LifecycleException {
+        setStateInternal(state, null, true);
     }
     
     /**

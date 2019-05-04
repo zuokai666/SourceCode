@@ -30,12 +30,12 @@ public class LifecycleTest extends LifecycleBase implements SingleUse,LifecycleL
 
 	@Override
 	protected void startInternal() throws LifecycleException {
-		setState(LifecycleState.STARTING, null);
+		setState(LifecycleState.STARTING);
 	}
 
 	@Override
 	protected void stopInternal() throws LifecycleException {
-		setState(LifecycleState.STOPPING, null);
+		setState(LifecycleState.STOPPING);
 	}
 
 	@Override

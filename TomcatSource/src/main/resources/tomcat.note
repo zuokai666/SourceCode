@@ -4,4 +4,13 @@ ContainerListener与Container
 PropertyChangeListener与Container
 Valve与PipeLine
 alias与Host
+Manager与Cluster
 
+
+backgroundProcess方法出现地方：
+Container
+Valve
+Cluster
+
+2019-5-4
+PrivilegedAction
