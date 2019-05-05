@@ -8,10 +8,10 @@ import org.zk.catalina.Valve;
 
 public class StandardPipeline implements Pipeline{
 	
-	private final Container container;
+//	private final Container container;
 	
 	public StandardPipeline(Container container) {
-		this.container = container;
+//		this.container = container;
 	}
 	
 	@Override
