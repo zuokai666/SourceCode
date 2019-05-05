@@ -38,7 +38,7 @@ import org.zk.tomcat.util.descriptor.web.LoginConfig;
  * @date 2019-05-03 11:53:26
  * 
  */
-public interface Context extends Container{
+public interface Context extends Container, ContextBind{
 	
     String ADD_WELCOME_FILE_EVENT = "addWelcomeFile";
     String REMOVE_WELCOME_FILE_EVENT = "removeWelcomeFile";

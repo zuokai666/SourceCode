@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.concurrent.ExecutorService;
 import java.util.regex.Pattern;
 
-interface Host extends Container{
+public interface Host extends Container{
 	
 	String ADD_ALIAS_EVENT = "addAlias";
     String REMOVE_ALIAS_EVENT = "removeAlias";

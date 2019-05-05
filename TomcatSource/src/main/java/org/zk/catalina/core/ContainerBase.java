@@ -19,19 +19,28 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import javax.management.ObjectName;
+
 import org.zk.catalina.Globals;
+import org.zk.catalina.Host;
 import org.zk.catalina.LifecycleState;
+import org.zk.catalina.Loader;
 import org.zk.catalina.event.ContainerEvent;
 import org.zk.catalina.Valve;
+import org.zk.catalina.Wrapper;
 import org.zk.catalina.connector.Request;
 import org.zk.catalina.connector.Response;
 import org.zk.catalina.core.AccessLogAdapter;
 import org.zk.catalina.thread.StartStopThreadFactory;
+import org.zk.tomcat.util.ContextName;
+import org.zk.tomcat.util.ExceptionUtils;
 import org.zk.tomcat.util.MultiThrowable;
 import org.springframework.util.Assert;
 import org.zk.catalina.AccessLog;
 import org.zk.catalina.Cluster;
 import org.zk.catalina.Container;
+import org.zk.catalina.Context;
+import org.zk.catalina.Engine;
 import org.zk.catalina.Lifecycle;
 import org.zk.catalina.LifecycleException;
 import org.zk.catalina.Pipeline;
@@ -439,20 +448,73 @@ public abstract class ContainerBase extends LifecycleMBeanBase implements Contai
         setState(LifecycleState.STARTING);
         threadStart();
     }
-    /**
-     * 开启后台线程，周期性检查会话超时问题
-     */
-    protected void threadStart() {
-    	
-    }
+    
     @Override
     protected synchronized void stopInternal() throws LifecycleException {
-    	
+    	threadStop();
+    	setState(LifecycleState.STOPPING);
+    	if (pipeline instanceof Lifecycle &&
+                ((Lifecycle) pipeline).getState().isAvailable()) {
+            ((Lifecycle) pipeline).stop();
+        }
+        Container children[] = findChildren();
+        List<Future<Void>> results = new ArrayList<>();
+        for (int i = 0; i < children.length; i++) {
+            results.add(startStopExecutor.submit(new StopChild(children[i])));
+        }
+        boolean fail = false;
+        for (Future<Void> result : results) {
+            try {
+                result.get();
+            } catch (Exception e) {
+                log.error(sm.getString("containerBase.threadedStopFailed"), e);
+                fail = true;
+            }
+        }
+        if (fail) {
+            throw new LifecycleException(sm.getString("containerBase.threadedStopFailed"));
+        }
+        Realm realm = getRealmInternal();
+        if (realm instanceof Lifecycle) {
+            ((Lifecycle) realm).stop();
+        }
+        Cluster cluster = getClusterInternal();
+        if (cluster instanceof Lifecycle) {
+            ((Lifecycle) cluster).stop();
+        }
     }
 	
     @Override
     protected void destroyInternal() throws LifecycleException {
-    	
+    	Realm realm = getRealmInternal();
+        if (realm instanceof Lifecycle) {
+            ((Lifecycle) realm).destroy();
+        }
+        Cluster cluster = getClusterInternal();
+        if (cluster instanceof Lifecycle) {
+            ((Lifecycle) cluster).destroy();
+        }
+
+        // Stop the Valves in our pipeline (including the basic), if any
+        if (pipeline instanceof Lifecycle) {
+            ((Lifecycle) pipeline).destroy();
+        }
+
+        // Remove children now this container is being destroyed
+        for (Container child : findChildren()) {
+            removeChild(child);
+        }
+
+        // Required if the child is destroyed directly.
+        if (parent != null) {
+            parent.removeChild(this);
+        }
+
+        // If init fails, this may be null
+        if (startStopExecutor != null) {
+            startStopExecutor.shutdownNow();
+        }
+        super.destroyInternal();
     }
     @Override
     public void logAccess(Request request, Response response, long time,boolean useDefault) {
@@ -493,7 +555,36 @@ public abstract class ContainerBase extends LifecycleMBeanBase implements Contai
     }
     @Override
     public void backgroundProcess() {
-    	
+    	if (!getState().isAvailable())
+            return;
+
+        Cluster cluster = getClusterInternal();
+        if (cluster != null) {
+            try {
+                cluster.backgroundProcess();
+            } catch (Exception e) {
+                log.warn(sm.getString("containerBase.backgroundProcess.cluster",
+                        cluster), e);
+            }
+        }
+        Realm realm = getRealmInternal();
+        if (realm != null) {
+            try {
+                realm.backgroundProcess();
+            } catch (Exception e) {
+                log.warn(sm.getString("containerBase.backgroundProcess.realm", realm), e);
+            }
+        }
+        Valve current = pipeline.getFirst();
+        while (current != null) {
+            try {
+                current.backgroundProcess();
+            } catch (Exception e) {
+                log.warn(sm.getString("containerBase.backgroundProcess.valve", current), e);
+            }
+            current = current.getNext();
+        }
+        fireLifecycleEvent(Lifecycle.PERIODIC_EVENT, null);
     }
     @Override
     public File getCatalinaBase() {
@@ -521,11 +612,188 @@ public abstract class ContainerBase extends LifecycleMBeanBase implements Contai
     
     
     
+    @Override
+    protected String getDomainInternal() {
+
+        Container p = this.getParent();
+        if (p == null) {
+            return null;
+        } else {
+            return p.getDomain();
+        }
+    }
+
+
+    @Override
+    public String getMBeanKeyProperties() {
+        Container c = this;
+        StringBuilder keyProperties = new StringBuilder();
+        int containerCount = 0;
+
+        // Work up container hierarchy, add a component to the name for
+        // each container
+        while (!(c instanceof Engine)) {
+            if (c instanceof Wrapper) {
+                keyProperties.insert(0, ",servlet=");
+                keyProperties.insert(9, c.getName());
+            } else if (c instanceof Context) {
+                keyProperties.insert(0, ",context=");
+                ContextName cn = new ContextName(c.getName(), false);
+                keyProperties.insert(9,cn.getDisplayName());
+            } else if (c instanceof Host) {
+                keyProperties.insert(0, ",host=");
+                keyProperties.insert(6, c.getName());
+            } else if (c == null) {
+                // May happen in unit testing and/or some embedding scenarios
+                keyProperties.append(",container");
+                keyProperties.append(containerCount++);
+                keyProperties.append("=null");
+                break;
+            } else {
+                // Should never happen...
+                keyProperties.append(",container");
+                keyProperties.append(containerCount++);
+                keyProperties.append('=');
+                keyProperties.append(c.getName());
+            }
+            c = c.getParent();
+        }
+        return keyProperties.toString();
+    }
+
+    public ObjectName[] getChildren() {
+        List<ObjectName> names = new ArrayList<>(children.size());
+        for (Container next : children.values()) {
+            if (next instanceof ContainerBase) {
+                names.add(((ContainerBase)next).getObjectName());
+            }
+        }
+        return names.toArray(new ObjectName[names.size()]);
+    }
+
+
+    // -------------------- Background Thread --------------------
+
+    /**
+     * Start the background thread that will periodically check for
+     * session timeouts.
+     */
+    protected void threadStart() {
+
+        if (thread != null)
+            return;
+        if (backgroundProcessorDelay <= 0)
+            return;
+
+        threadDone = false;
+        String threadName = "ContainerBackgroundProcessor[" + toString() + "]";
+        thread = new Thread(new ContainerBackgroundProcessor(), threadName);
+        thread.setDaemon(true);
+        thread.start();
+
+    }
+
+
+    /**
+     * Stop the background thread that is periodically checking for
+     * session timeouts.
+     */
+    protected void threadStop() {
+
+        if (thread == null)
+            return;
+
+        threadDone = true;
+        thread.interrupt();
+        try {
+            thread.join();
+        } catch (InterruptedException e) {
+            // Ignore
+        }
+
+        thread = null;
+
+    }
+
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        Container parent = getParent();
+        if (parent != null) {
+            sb.append(parent.toString());
+            sb.append('.');
+        }
+        sb.append(this.getClass().getSimpleName());
+        sb.append('[');
+        sb.append(getName());
+        sb.append(']');
+        return sb.toString();
+    }
     
     
     
-    
-    
+    protected class ContainerBackgroundProcessor implements Runnable {
+
+        @Override
+        public void run() {
+            Throwable t = null;
+            String unexpectedDeathMessage = sm.getString(
+                    "containerBase.backgroundProcess.unexpectedThreadDeath",
+                    Thread.currentThread().getName());
+            try {
+                while (!threadDone) {
+                    try {
+                        Thread.sleep(backgroundProcessorDelay * 1000L);
+                    } catch (InterruptedException e) {
+                        // Ignore
+                    }
+                    if (!threadDone) {
+                        processChildren(ContainerBase.this);
+                    }
+                }
+            } catch (RuntimeException|Error e) {
+                t = e;
+                throw e;
+            } finally {
+                if (!threadDone) {
+                    log.error(unexpectedDeathMessage, t);
+                }
+            }
+        }
+
+        protected void processChildren(Container container) {
+            ClassLoader originalClassLoader = null;
+            
+            try {
+                if (container instanceof Context) {
+                    Loader loader = ((Context) container).getLoader();
+                    // Loader will be null for FailedContext instances
+                    if (loader == null) {
+                        return;
+                    }
+
+                    // Ensure background processing for Contexts and Wrappers
+                    // is performed under the web app's class loader
+                    originalClassLoader = ((Context) container).bind(false, null);
+                }
+                container.backgroundProcess();
+                Container[] children = container.findChildren();
+                for (int i = 0; i < children.length; i++) {
+                    if (children[i].getBackgroundProcessorDelay() <= 0) {
+                        processChildren(children[i]);
+                    }
+                }
+            } catch (Throwable t) {
+                ExceptionUtils.handleThrowable(t);
+                log.error("Exception invoking periodic operation: ", t);
+            } finally {
+                if (container instanceof Context) {
+                    ((Context) container).unbind(false, originalClassLoader);
+               }
+            }
+        }
+    }
     
     
     
