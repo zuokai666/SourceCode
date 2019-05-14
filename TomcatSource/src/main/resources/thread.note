@@ -14,4 +14,6 @@ ContainerBase中的属性Cluster使用的是读写锁
 ContainerBase中的startInternal中启动子容器使用并发包中的Future与Callable
 
 
+StandardWrapper中使用了3个读写锁ReentrantReadWriteLock，来保护3个HashMap
+
 
