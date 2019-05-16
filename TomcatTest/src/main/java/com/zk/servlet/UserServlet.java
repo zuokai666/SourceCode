@@ -2,32 +2,28 @@ package com.zk.servlet;
 
 import java.io.IOException;
 
-import javax.servlet.Servlet;
-import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-public class UserServlet implements Servlet{
+import org.apache.catalina.session.StandardSessionFacade;
 
-	public void init(ServletConfig config) throws ServletException {
-	} 
+public class UserServlet extends HttpServlet{
 	
-	public ServletConfig getServletConfig() {
-		return null;
-	}
-
-	public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
-		System.err.println(1);
+	private static final long serialVersionUID = -1523386767224719857L;
+	
+	@Override
+	protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+		StandardSessionFacade session = (StandardSessionFacade) req.getSession();
+		String user = (String) session.getAttribute("user");
+		if(user == null){
+			System.err.println("登录");
+			session.setAttribute("user", "zuokai");
+		}
+		System.err.println(session.getAttribute("user"));
+		System.err.println(session.getClass());
 		res.setContentType("application/json; charset=utf-8");
 		res.getOutputStream().println("{\"result\":\"1\"}");
 	}
-	
-	public String getServletInfo() {
-		return null;
-	}
-	
-	public void destroy() {
-	}
-
 }

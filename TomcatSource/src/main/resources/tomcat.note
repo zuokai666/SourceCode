@@ -14,3 +14,9 @@ Cluster
 
 2019-5-4
 PrivilegedAction
+
+2019-5-16
+拿StandardSession举例
+细粒度的属性监听器
+粗粒度的自定义的事件监听器
+具有高扩展性，满足开闭原则

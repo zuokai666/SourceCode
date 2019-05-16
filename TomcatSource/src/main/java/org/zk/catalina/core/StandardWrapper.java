@@ -34,7 +34,7 @@ import org.zk.catalina.Wrapper;
  * @author King
  *
  */
-public class StandardWrapper extends ContainerBase implements ServletConfig,Wrapper,NotificationEmitter{
+public abstract class StandardWrapper extends ContainerBase implements ServletConfig,Wrapper,NotificationEmitter{
 	
 	public static final Logger log = LoggerFactory.getLogger(StandardWrapper.class);
 	protected static final String[] default_servlet_methods = new String[]{"GET","HEAD","POST"};
@@ -98,7 +98,7 @@ public class StandardWrapper extends ContainerBase implements ServletConfig,Wrap
     
     
 	public StandardWrapper() {
-		
+		this.broadcaster = new NotificationBroadcasterSupport();
 	}
 	
 	@Override

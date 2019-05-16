@@ -16,4 +16,4 @@ ContainerBase中的startInternal中启动子容器使用并发包中的Future与
 
 StandardWrapper中使用了3个读写锁ReentrantReadWriteLock，来保护3个HashMap
 
-
+StandardSession的ConcurrentHashMap   属性映射
