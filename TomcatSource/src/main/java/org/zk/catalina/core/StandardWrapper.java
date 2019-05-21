@@ -1,25 +1,17 @@
 package org.zk.catalina.core;
 
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import javax.management.ListenerNotFoundException;
-import javax.management.MBeanNotificationInfo;
 import javax.management.NotificationBroadcasterSupport;
 import javax.management.NotificationEmitter;
-import javax.management.NotificationFilter;
-import javax.management.NotificationListener;
 import javax.management.ObjectName;
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.UnavailableException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

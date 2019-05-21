@@ -8,5 +8,12 @@ package org.zk.catalina;
  *
  */
 public interface Manager {
-
+	
+	public Context getContext();
+	public void setContext(Context context);
+	public SessionIdGenerator getSessionIdGenerator();
+	public void setSessionIdGenerator(SessionIdGenerator sessionIdGenerator);
+	public long getSessionCounter();
+	
+	//... ...
 }

@@ -6,3 +6,13 @@ StandardWrapper与StandardWrapperFacede体现了门面模式，属于结构型�
 
 提供了客户端访问的简单请求，和对现有系统类的委托调用，做到防止调用者利用强转得到原始类型中的字段，方法，权限控制
 
+class StandardSessionFacade implements HttpSession{
+	HttpSession session;
+	public StandardSessionFacade(HttpSession session){
+		this.session = session;
+	}
+}
+
+对外只能访问接口定义的函数，体现了函数的权限控制
+
+
