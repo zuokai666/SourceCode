@@ -6,6 +6,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionContext;
 
+@SuppressWarnings("deprecation")
 public class StandardSessionFacade implements HttpSession{
 	
 	private HttpSession session;
@@ -43,6 +44,7 @@ public class StandardSessionFacade implements HttpSession{
 		return 0;
 	}
 
+	
 	@Override
 	public HttpSessionContext getSessionContext() {
 		return null;

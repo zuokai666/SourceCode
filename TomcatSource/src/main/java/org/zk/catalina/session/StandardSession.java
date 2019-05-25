@@ -22,6 +22,7 @@ import org.zk.catalina.listener.SessionListener;
  * @author King
  * 
  */
+@SuppressWarnings("unused")
 public abstract class StandardSession implements HttpSession, Session, Serializable{
 	
 	private static final long serialVersionUID = -2458412535756500800L;

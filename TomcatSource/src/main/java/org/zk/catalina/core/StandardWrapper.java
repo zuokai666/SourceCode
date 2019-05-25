@@ -26,6 +26,7 @@ import org.zk.catalina.Wrapper;
  * @author King
  *
  */
+@SuppressWarnings("unused")
 public abstract class StandardWrapper extends ContainerBase implements ServletConfig,Wrapper,NotificationEmitter{
 	
 	public static final Logger log = LoggerFactory.getLogger(StandardWrapper.class);
@@ -86,7 +87,7 @@ public abstract class StandardWrapper extends ContainerBase implements ServletCo
   	
     private final ReentrantReadWriteLock mappingsLock = new ReentrantReadWriteLock();
     private final ReentrantReadWriteLock parametersLock = new ReentrantReadWriteLock();
-    private final ReentrantReadWriteLock referencesLock = new ReentrantReadWriteLock();
+	private final ReentrantReadWriteLock referencesLock = new ReentrantReadWriteLock();
     
     
 	public StandardWrapper() {
