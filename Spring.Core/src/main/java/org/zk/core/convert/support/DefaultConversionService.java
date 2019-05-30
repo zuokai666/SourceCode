@@ -1,6 +1,8 @@
 package org.zk.core.convert.support;
 
 import org.zk.core.convert.converter.Converter;
+import org.zk.core.convert.converter.ConverterFactory;
+import org.zk.core.convert.converter.GenericConverter;
 
 public class DefaultConversionService implements ConfigurableConversionService{
 	
@@ -24,5 +26,13 @@ public class DefaultConversionService implements ConfigurableConversionService{
 
 	@Override
 	public void removeConvertible(Class<?> sourceClass, Class<?> targetClass) {
+	}
+
+	@Override
+	public void addGenericConverter(GenericConverter converter) {
+	}
+
+	@Override
+	public void addConverterFactory(ConverterFactory<?, ?> factory) {
 	}
 }

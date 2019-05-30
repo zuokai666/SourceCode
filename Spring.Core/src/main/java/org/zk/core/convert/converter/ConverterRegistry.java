@@ -9,8 +9,8 @@ package org.zk.core.convert.converter;
  */
 public interface ConverterRegistry {
 	
-//	void addGenericConverter(GenericConverter converter);
-//	void addConverterFactory(ConverterFactory<?, ?> factory);
+	void addGenericConverter(GenericConverter converter);
+	void addConverterFactory(ConverterFactory<?, ?> factory);
 	void addConverter(Converter<?, ?> converter);
 	<S,T> void addConverter(Class<S> sourceClass,Class<T> targetClass,Converter<S, T> converter);
 	void removeConvertible(Class<?> sourceClass,Class<?> targetClass);
