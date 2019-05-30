@@ -1,0 +1,11 @@
+2019-05-30 09:21:05
+
+适配器模式解决的是两个接口不兼容的问题，属于结构型模式，它结合了两个接口的功能
+
+
+
+ConverterRegistry 转换器注册中心里面可以添加三种类型的转换器
+在具体实现中，Converter，ConverterFactory都会转化为GenericConverter，其中就是用到了适配器模式
+ConverterAdapter，ConverterFactoryAdapter
+适配器继承自GenericConverter，将自己的实现传入其中
+
