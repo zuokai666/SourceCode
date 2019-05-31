@@ -1,0 +1,63 @@
+2019年4月17日-SpringApplication.run
+	
+	设置java.awt.headless=true
+	
+	搜索META-INF/spring.factories下列出的SpringApplicationRunListener类的子类，实例化并保存
+	
+	介绍SpringApplicationRunListener的功能：
+	SpringApplication的run()的监听器
+	
+	SpringApplicationEvent事件主体
+	SpringApplicationRunListener没有继承ApplicationListener
+	
+	SpringApplicationRunListeners是SpringApplicationRunListener集合，对外提供了统一的操作
+	
+	
+2019年4月16日-SpringApplication初始化
+	
+	deduce：推断
+	
+	在SpringApplication构造函数中，deduceMainApplicationClass()使用StackTrace往上循环追踪到运行main()的主类
+	
+	搜索META-INF/spring.factories下列出的ApplicationContextInitializer类的子类，实例化并保存
+	
+	org.springframework.boot.devtools.restart.RestartScopeInitializer, org.springframework.boot.context.ConfigurationWarningsApplicationContextInitializer, org.springframework.boot.context.ContextIdApplicationContextInitializer, org.springframework.boot.context.config.DelegatingApplicationContextInitializer, org.springframework.boot.web.context.ServerPortInfoApplicationContextInitializer, org.springframework.boot.autoconfigure.SharedMetadataReaderFactoryContextInitializer, org.springframework.boot.autoconfigure.logging.ConditionEvaluationReportLoggingListener
+	
+	搜索META-INF/spring.factories下列出的ApplicationListener类的子类，实例化并保存
+	
+	org.springframework.boot.devtools.restart.RestartApplicationListener, 
+	org.springframework.boot.ClearCachesApplicationListener, org.springframework.boot.builder.ParentContextCloserApplicationListener, org.springframework.boot.context.FileEncodingApplicationListener, org.springframework.boot.context.config.AnsiOutputApplicationListener, org.springframework.boot.context.config.ConfigFileApplicationListener, org.springframework.boot.context.config.DelegatingApplicationListener, org.springframework.boot.context.logging.ClasspathLoggingApplicationListener, org.springframework.boot.context.logging.LoggingApplicationListener, org.springframework.boot.liquibase.LiquibaseServiceLocatorApplicationListener, org.springframework.boot.autoconfigure.BackgroundPreinitializer
+	
+	ContextIdApplicationContextInitializer在初始化时.会获得spring boot的应用名
+	
+	additional-spring-configuration-metadata.json存着默认8080
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
