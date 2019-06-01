@@ -1,4 +1,4 @@
-package org.zk.boot.env;
+package com.zk.boot.env;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.env.EnvironmentPostProcessor;
