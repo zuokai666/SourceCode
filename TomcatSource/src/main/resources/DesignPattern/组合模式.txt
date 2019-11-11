@@ -6,3 +6,15 @@ Container接口体现了组合模式
 意图：将对象组合成树形结构以表示“部分-整体”的层次结构，组合模式使得用户对单一对象和组合对象的操作具有一致性。
 
 
+
+
+class WebMvcConfigurerComposite implements WebMvcConfigurer {
+	
+	private final List<WebMvcConfigurer> delegates = new ArrayList<>();
+}
+
+
+public class HandlerExceptionResolverComposite implements HandlerExceptionResolver {
+	
+	private List<HandlerExceptionResolver> resolvers;
+}
