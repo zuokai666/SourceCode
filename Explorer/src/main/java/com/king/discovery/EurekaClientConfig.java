@@ -8,5 +8,12 @@ package com.king.discovery;
  * 
  */
 public interface EurekaClientConfig {
-
+	
+	int getRegistryFetchIntervalSeconds();//多长时间从服务端取注册信息
+	int getInstanceInfoReplicationIntervalSeconds();//实例信息同步
+	int getInitialInstanceInfoReplicationIntervalSeconds();
+	int getEurekaServiceUrlPollIntervalSeconds();
+	
+	int getEurekaServerReadTimeoutSeconds();
+	
 }

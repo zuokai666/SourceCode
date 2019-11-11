@@ -3,6 +3,7 @@ package com.king.appinfo;
 import java.util.Map;
 
 /**
+ * 把一个实例注册到注册中心的所需要的配置信息
  * 对实例信息类的抽象，面向接口编程
  * 
  * @author king
