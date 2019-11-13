@@ -1,5 +1,9 @@
 package com.king.discovery;
 
+import java.util.List;
+
+import com.zk.discovery.shared.transport.EurekaTransportConfig;
+
 /**
  * 客户端向服务端注册实例所需要的配置
  * 
@@ -15,5 +19,16 @@ public interface EurekaClientConfig {
 	int getEurekaServiceUrlPollIntervalSeconds();
 	
 	int getEurekaServerReadTimeoutSeconds();
+	int getEurekaServerConnectTimeoutSeconds();
+	boolean shouldRegisterWithEureka();
+	boolean shouldUnregisterOnShutdown();
+	boolean shoudPreferSameZoneEureka();
+	String getRegion();
+	String[] getAvailabilityZones(String region);
+	List<String> getEurekaServerServiceUrls(String myZone);
 	
+	boolean shouldFetchRegistry();
+	
+	
+	EurekaTransportConfig getEurekaTransportConfig();
 }
